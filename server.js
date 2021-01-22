@@ -19,6 +19,7 @@ const db = require("./app/models");
 db.sequelizeConfig.sync();
 
 require("./app/routes/client.routes")(app);
+require("./app/routes/dependent.routes")(app);
 
 app.get("/", (req, res) => {
   res.json({ 

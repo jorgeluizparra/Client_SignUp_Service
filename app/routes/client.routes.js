@@ -6,73 +6,105 @@ module.exports = app => {
   
     var router = require("express").Router();
 
-    // Get all registers
+    // Get all clients
     router.get("/", client.getAll);
 
-    // Create a new register
+    // Add new client
     router.post("/", checkSchema({
+        code: {
+            in: ['body'],
+            isString: true,
+            notEmpty: true,
+            optional: {
+                checkFalsy: true
+            },
+            isLength: {
+                errorMessage: 'Codigo do cliente incorreto, deve conter 8 digítos.',
+                options: 8
+            },
+            errorMessage: 'Codigo do cliente inválido.'
+        },
         name: {
             in: ['body'],
             isString: true,
             toLowerCase: true,
             notEmpty: true,
-            optional: {
-                checkFalsy: true
-            },
             errorMessage: 'Nome inválido.'
         },
-        email: {
+        address: {
             in: ['body'],
-            isEmail: true,
-            toLowerCase: true,
+            isString: true,
             notEmpty: true,
-            errorMessage: 'Email inválido.'
+            errorMessage: 'Endereço inválido.'
         },
-        studentNumber: {
+        phone: {
             in: ['body'],
-            isInt: true,
+            isString: true,
+            errorMessage: 'Telefone inválido.',
             isLength: {
-                errorMessage: 'Registro academico deve conter 6 numeros.',
-                options: 6
-            },
-            errorMessage: 'Registro acadêmico inválido.'
+                errorMessage: 'Telefone inválido. O telefone deve conter 14 digítos.',
+                options: 14
+            }
         },
-        cpf: {
+        dependents: {
             in: ['body'],
-            isInt: true,
-            isLength: {
-                errorMessage: 'CPF deve conter 11 numeros.',
-                options: 11
-            },
-            errorMessage: 'CPF inválido.'
+            isArray: true,
+            errorMessage: 'Lista de dependentes inválida. A lista deve ser uma array.'
         }
     }), client.create);
 
-    // Update a register
+    // Update a client data
     router.put("/:id", checkSchema({
         id: {
             in: ['params'],
             isInt: true,
             toInt: true,
-            errorMessage: 'O id esta errado.',
+            errorMessage: 'O id inválido.',
+        },
+        code: {
+            in: ['body'],
+            isString: true,
+            notEmpty: true,
+            optional: {
+                checkFalsy: true
+            },
+            isLength: {
+                errorMessage: 'Codigo do cliente incorreto, deve conter 8 digítos.',
+                options: 8
+            },
+            errorMessage: 'Codigo do cliente inválido.'
         },
         name: {
             in: ['body'],
-            errorMessage: 'O nome não foi enviado',
+            isString: true,
+            toLowerCase: true,
+            notEmpty: true,
+            errorMessage: 'Nome inválido.'
         },
-        email: {
+        address: {
             in: ['body'],
-            errorMessage: 'O email não foi enviado',
+            isString: true,
+            notEmpty: true,
+            errorMessage: 'Endereço inválido.'
+        },
+        phone: {
+            in: ['body'],
+            isString: true,
+            errorMessage: 'Telefone inválido.',
+            isLength: {
+                errorMessage: 'Telefone inválido. O telefone deve conter 14 digítos.',
+                options: 14
+            }
         }
     }), client.update);
 
-    // Delete a register
+    // Delete a client register
     router.delete("/:id", checkSchema({
         id: {
             in: ['params'],
             isInt: true,
             toInt: true,
-            errorMessage: 'O id esta errado.',
+            errorMessage: 'O id esta inválido.',
         }
     }), client.delete);
   

@@ -3,40 +3,12 @@ const db = require("../models");
 const Client = db.client;
 const Dependent = db.dependent;
 
-// Create new Client
-exports.create = (req, res) => {
-
-    const schemaErrors = validationResult(req);
-
-    if(!schemaErrors.isEmpty()){
-        return res.status(403).send(schemaErrors.array())
-    }
-
-    const register = {
-        name: req.body.name,
-        email: req.body.email,
-        studentNumber: req.body.studentNumber,
-        cpf: req.body.cpf,
-    };
-
-    Client.create(register)
-        .then(data => {
-            res.send(data);
-        })
-        .catch(err => {
-            res.status(400).send({
-                message: "Ocorreu um erro ao tentar salvar o cadastro."
-            });
-        });
-};
-
-// Retrieve all Clients
+// Retrieve all clients
 exports.getAll = (req, res) => {
 
     Client.findAll({ include: Dependent })
         .then(data => {
-            const response = functions.getPageData(data, page, limit, search);
-            res.send(response)
+            res.send(data);
         })
         .catch(err => {
             res.status(400).send({
@@ -46,7 +18,29 @@ exports.getAll = (req, res) => {
     
 };
 
-// Update a Client Data
+// Add a new client
+exports.create = (req, res) => {
+
+    const schemaErrors = validationResult(req);
+
+    if(!schemaErrors.isEmpty()){
+        return res.status(403).send(schemaErrors.array())
+    }
+
+    const newClient = req.body;
+
+    Client.create(newClient, { include: [ Dependent ] })
+        .then(data => {
+            res.send(data);
+        })
+        .catch(err => {
+            res.status(400).send({
+                message: "Ocorreu um erro ao tentar cadastrar o novo cliente."
+            });
+        });
+};
+
+// Update the client data
 exports.update = (req, res) => {
 
     const schemaErrors = validationResult(req);
@@ -56,47 +50,36 @@ exports.update = (req, res) => {
     }
 
     const id = req.params.id;
+    const updatedClientData = req.body;
 
-    const name = req.body.name;
-    const email = req.body.email;
-
-    const updateFields = {};
-
-    if (email && name) {
-        updateFields.name = name;
-        updateFields.email = email;
-    } else if (email && !name) {
-        updateFields.email =email;
-    } else if (name && !email) {
-        updateFields.name =name;
-    } else {
-        return res.status(400).send("Todos os campos estavam em branco.")
-    }
-
-    Client.update(updateFields, { 
-        where: { id : id }
-    })
+    Client.update(updatedClientData, { where: { id : id } })
         .then(num => {
             if (num == 1) {
                 res.status(200).send({
-                    msg: 'Cadastro atualizado com sucesso.',
-                    data: updateFields
+                    msg: 'Dados do client atualizados com sucesso.',
+                    data: updatedClientData
                 })
             } else {
-                res.status(400).send({
-                    msg: 'Não foi possivel atualizar o cadastro.'
+                res.status(404).send({
+                    msg: 'Não foi possivel atualizar os dados do client.'
                 })
             }
         })
         .catch(err => {
             res.status(400).send({
-                msg: 'Erro ao tentar atualizar o cadastro.'
+                msg: 'Erro ao tentar atualizar os dados do client.'
             });
         })
 };
 
-// Delete a Register with the specified id in the request
+// Delete a client register
 exports.delete = (req, res) => {
+
+    const schemaErrors = validationResult(req);
+
+    if(!schemaErrors.isEmpty()){
+        return res.status(403).send(schemaErrors.array())
+    }
 
     const id = req.params.id;
 
@@ -105,11 +88,11 @@ exports.delete = (req, res) => {
             if (num == 1) {
                 res.status(200).send({
                     id: id,
-                    msg: 'Cadastro deletado com sucesso.'
+                    msg: 'Cadastro do cliente deletado com sucesso.'
                 });
             } else {
-                res.status(400).send({
-                    msg: 'Cadastro não foi encontrado.'
+                res.status(404).send({
+                    msg: 'Cadastro do cliente não foi encontrado.'
                 });
             }
         })

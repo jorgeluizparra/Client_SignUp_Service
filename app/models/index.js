@@ -17,6 +17,14 @@ db.sequelizeConfig = sequelizeConfig;
 db.client = require("./client.model.js")(sequelizeConfig, Sequelize);
 db.dependent = require("./dependent.model.js")(sequelizeConfig, Sequelize);
 
-db.client.hasMany(db.dependent);
+// Relation between models
+db.client.hasMany(db.dependent, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+    foreignKey: {
+        allowNull: false
+    }
+});
+db.dependent.belongsTo(db.client);
 
 module.exports = db;
